@@ -17,7 +17,13 @@
     <title>かけいぼ</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- アプリが起動すると React がこの中身を置き換える。起動できなかったときだけ見える -->
+      <p style="color:#8a8a99;font-family:sans-serif;text-align:center;padding:40vh 24px 0;line-height:1.8">
+        読み込み中…<br />
+        <small>表示されない場合は、GitHub の Settings → Pages → Source が「GitHub Actions」になっているか確認してください。</small>
+      </p>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
