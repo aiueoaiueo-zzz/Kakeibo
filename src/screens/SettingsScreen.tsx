@@ -194,6 +194,27 @@ export function SettingsScreen() {
       </section>
 
       <section className="card">
+        <h3>ショートカット連携（おすすめ・高精度）</h3>
+        <p className="hint">iPhone標準の文字認識（テキスト認識表示）で読み取ります。端末の中だけで動くので無料・通信なしで、アプリ内のOCRより正確です。</p>
+        <details>
+          <summary className="link-btn">作り方を見る</summary>
+          <ol className="steps">
+            <li>「ショートカット」アプリを開き、右上の <b>＋</b> で新規作成</li>
+            <li>
+              アクションを検索して、次の順に追加
+              <br />① <b>写真を撮る</b>（「カメラのプレビューを表示」はオン）
+              <br />② <b>画像からテキストを抽出</b>
+              <br />③ <b>クリップボードにコピー</b>
+              <br />④（任意）<b>通知を表示</b>：「かけいぼを開いて📋を押してください」
+            </li>
+            <li>名前を「レシート読取」などにして完了。共有ボタン →「ホーム画面に追加」すると1タップで起動できる（アクションボタンや背面タップにも割り当て可）</li>
+            <li>使うとき：ショートカットで撮影 → かけいぼを開く → ホームの <b>📋 コピーした文字から読み取る</b> → 「ペースト」を押す → 内容を確認して保存</li>
+          </ol>
+          <p className="hint">アルバムの写真から読みたいときは、①を「写真を選択」にしたショートカットをもう1つ作るか、写真アプリでテキスト認識 →「すべてを選択」→コピーしてください。</p>
+        </details>
+      </section>
+
+      <section className="card">
         <h3>レシート読取（OCR）</h3>
         <p className="hint">読取は端末の中だけで行います。日本語データ（約2MB）を先に読み込んでおくと、電波がない場所でも読取できます。</p>
         <button className="btn" onClick={prepare} disabled={ocrState.includes('%')}>

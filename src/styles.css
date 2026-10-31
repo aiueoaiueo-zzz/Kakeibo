@@ -1036,3 +1036,35 @@ input[type='color'] {
   font-family: var(--mono);
   font-size: 14px !important;
 }
+
+.action-wide {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 64px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 1px solid rgba(200, 245, 66, 0.45);
+  font-weight: 700;
+  text-align: left;
+}
+.action-wide:active {
+  transform: scale(0.99);
+}
+.action-wide small {
+  display: block;
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--muted);
+}
+.steps {
+  margin: 0 0 10px;
+  padding-left: 22px;
+  font-size: 13.5px;
+  line-height: 1.75;
+}
+.steps b {
+  color: var(--lime);
+  font-weight: 700;
+}

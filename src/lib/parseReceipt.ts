@@ -166,16 +166,55 @@ function parseTransit(t: string): Transit | null {
   };
 }
 
+/**
+ * 商品名と金額が別々の行に分かれているとき、名前の行と金額の行をつなげる。
+ * iPhone のテキスト認識でコピーすると、列ごとにまとまって
+ *   おにぎり / お茶 / 合計 / ¥150 / ¥120 / ¥270
+ * のように並ぶことがあるため、「金額だけの行」が K 行続いたら、
+ * その直前にある「金額のない行」の後ろから K 行と順番に組み合わせる。
+ */
+export function pairSplitColumns(lines: string[], isLabelOnly: (l: string) => boolean, isAmountOnly: (l: string) => boolean): string[] {
+  const out = [...lines];
+  const removed = new Set<number>();
+  let labels: number[] = [];
+  let i = 0;
+  while (i < out.length) {
+    if (isAmountOnly(out[i])) {
+      const run: number[] = [];
+      while (i < out.length && isAmountOnly(out[i])) run.push(i++);
+      const m = Math.min(run.length, labels.length);
+      const use = labels.slice(labels.length - m);
+      use.forEach((li, k) => {
+        out[li] = `${out[li]} ${out[run[k]]}`;
+        removed.add(run[k]);
+      });
+      labels = [];
+      continue;
+    }
+    if (isLabelOnly(out[i])) labels.push(i);
+    else labels = []; // 金額つきの行で区切る
+    i++;
+  }
+  return out.filter((_, idx) => !removed.has(idx));
+}
+
 /** レシートの文字列を解析する（純粋関数） */
 export function parseReceipt(text: string, today = todayISO()): ParsedReceipt {
   const normalized = normalizeText(text);
-  const lines = normalized
+  const rawLines = normalized
     .split('\n')
     .map(cleanLine)
     .filter((l) => l.length > 0);
 
   const date = parseDate(normalized, today);
-  const storeName = findStoreName(lines);
+  const storeName = findStoreName(rawLines);
+  const isStoreLine = (l: string) => Boolean(storeName) && (l === storeName || storeName.split(' ').includes(l));
+  const isDateOrPhone = (l: string) => Boolean(parseDate(l, today)) || RE_PHONE.test(l);
+  const lines = pairSplitColumns(
+    rawLines,
+    (l) => !isStoreLine(l) && (isDateOrPhone(l) ? false : lineAmount(l) == null) && hasLetter(l),
+    (l) => !isDateOrPhone(l) && lineAmount(l)?.name === '',
+  );
 
   const items: ParsedItem[] = [];
   let total: number | null = null;
@@ -183,8 +222,8 @@ export function parseReceipt(text: string, today = todayISO()): ParsedReceipt {
   let pendingTotal = false; // 「合計」の金額が次の行にある
 
   for (const line of lines) {
-    if (storeName && (line === storeName || storeName.split(' ').includes(line))) continue;
-    const isDateLine = Boolean(parseDate(line, today)) || RE_PHONE.test(line);
+    if (isStoreLine(line)) continue;
+    const isDateLine = isDateOrPhone(line);
     const la = isDateLine ? null : lineAmount(line);
 
     // 金額だけの行（前の行の続き）

@@ -178,3 +178,38 @@ Suica`,
     expect(r.paymentMethod).toBe('電子マネー');
   });
 });
+
+describe('iPhoneのテキスト認識でコピーした文字', () => {
+  it('商品名と金額が列ごとに分かれていても組み合わせる', () => {
+    const r = parseReceipt(
+      `セブン-イレブン
+渋谷店
+2026/10/31 12:34
+おにぎり
+お茶
+小計
+合計
+¥150
+¥120
+¥270
+¥270
+PayPay`,
+      TODAY,
+    );
+    expect(r.items).toEqual([
+      { name: 'おにぎり', amount: 150 },
+      { name: 'お茶', amount: 120 },
+    ]);
+    expect(r.total).toBe(270);
+    expect(r.paymentMethod).toBe('電子マネー');
+  });
+
+  it('1行ずつ並んでいる場合はそのまま', () => {
+    const r = parseReceipt(`ローソン\nおにぎり ¥150\n弁当\n¥500\n値引\n-100\n合計 ¥550`, TODAY);
+    expect(r.items).toEqual([
+      { name: 'おにぎり', amount: 150 },
+      { name: '弁当', amount: 400 },
+    ]);
+    expect(r.total).toBe(550);
+  });
+});

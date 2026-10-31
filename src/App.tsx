@@ -74,6 +74,26 @@ export default function App() {
     [openForm, toast],
   );
 
+  // ショートカット（画像からテキストを抽出 → クリップボードにコピー）の結果を読み取る
+  const readClipboard = async () => {
+    let text = '';
+    try {
+      text = (await navigator.clipboard.readText()).trim();
+    } catch {
+      toast('info', '貼り付け欄に「ペースト」してください');
+      setSheet({ kind: 'text' });
+      return;
+    }
+    if (!text) {
+      toast('info', 'コピーされた文字がありません。先にショートカットを実行してください');
+      return;
+    }
+    const receipt = parseReceipt(text);
+    if (!receipt.items.length && receipt.total == null) toast('info', '商品をうまく読み取れませんでした。確認して入力してください');
+    else toast('success', `${receipt.items.length}件の商品を読み取りました`);
+    openForm({ parsed: { receipt, rawText: text, source: 'text' } });
+  };
+
   const current = TABS.find((t) => t.id === tab)!;
   const dayEntries = sheet?.kind === 'day' ? entries.filter((e) => e.date === sheet.date) : [];
   const openEntry = (e: Entry) => openForm({ entry: e });
@@ -91,6 +111,7 @@ export default function App() {
             onAlbum={() => albumRef.current?.click()}
             onManual={() => openForm({})}
             onText={() => setSheet({ kind: 'text' })}
+            onClipboard={readClipboard}
             onOpen={openEntry}
             onShowHistory={() => setTab('history')}
           />
@@ -125,7 +146,7 @@ export default function App() {
         {sheet?.kind === 'scan' && <ScanSheet file={sheet.file} onResult={onScanResult} onError={onScanError} />}
       </BottomSheet>
 
-      <BottomSheet open={sheet?.kind === 'text'} title="テキストから読み取る" onClose={() => setSheet(null)}>
+      <BottomSheet open={sheet?.kind === 'text'} title="文字を貼り付けて読み取る" onClose={() => setSheet(null)}>
         {sheet?.kind === 'text' && (
           <TextImport
             onSubmit={(rawText) => {

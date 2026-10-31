@@ -9,11 +9,12 @@ interface Props {
   onAlbum: () => void;
   onManual: () => void;
   onText: () => void;
+  onClipboard: () => void;
   onOpen: (e: Entry) => void;
   onShowHistory: () => void;
 }
 
-export function HomeScreen({ onCamera, onAlbum, onManual, onText, onOpen, onShowHistory }: Props) {
+export function HomeScreen({ onCamera, onAlbum, onManual, onText, onClipboard, onOpen, onShowHistory }: Props) {
   const { entries, categoryById } = useStore();
   const now = new Date();
   const { start, end } = monthRange(now.getFullYear(), now.getMonth());
@@ -57,12 +58,19 @@ export function HomeScreen({ onCamera, onAlbum, onManual, onText, onOpen, onShow
           <span>手入力</span>
         </button>
       </section>
+      <button className="action-wide" onClick={onClipboard}>
+        <span className="action-icon">📋</span>
+        <span>
+          コピーした文字から読み取る
+          <small>ショートカットで読み取った後はここ</small>
+        </span>
+      </button>
       <div className="sub-actions">
         <button className="link-btn" onClick={onAlbum}>
           🖼 アルバムから選ぶ
         </button>
         <button className="link-btn" onClick={onText}>
-          📋 テキストから読み取る
+          ⌨️ 文字を貼り付けて読み取る
         </button>
       </div>
 
